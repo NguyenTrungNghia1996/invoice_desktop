@@ -1,0 +1,91 @@
+name: Build and Publish Tauri App on Deploy PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - deploy
+
+jobs:
+  build-and-publish:
+    if: github.event.pull_request.merged == true
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout invoice_desktop repo
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Setup Yarn
+      run: npm install -g yarn
+
+    - name: Setup Rust (for Tauri)
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install Tauri CLI
+      run: cargo install tauri-cli
+
+    - name: Setup Golang
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
+
+    - name: Clone fe_invoice (Nuxt frontend)
+      run: git clone https://github.com/NguyenTrungNghia1996/fe_invoice.git
+
+    - name: Build frontend
+      working-directory: ./fe_invoice
+      run: |
+        yarn install
+        yarn generate
+
+    - name: Cleanup resources/fe
+      run: |
+        if (Test-Path "resources/fe") { Remove-Item "resources/fe" -Recurse -Force }
+        mkdir resources/fe
+      shell: pwsh
+
+    - name: Copy frontend to Tauri resources/fe
+      run: xcopy /E /I /Y fe_invoice\.output\public\* resources\fe\
+
+    - name: Clone be_invoice (Golang backend)
+      run: git clone https://github.com/NguyenTrungNghia1996/be_invoice.git
+
+    - name: Cleanup resources/bin
+      run: |
+        if (Test-Path "resources/bin") { Remove-Item "resources/bin" -Recurse -Force }
+        mkdir resources/bin
+      shell: pwsh
+
+    - name: Build backend
+      working-directory: ./be_invoice
+      run: go build -o ../resources/bin/backend.exe main.go
+
+    - name: Install invoice_desktop dependencies
+      run: yarn install
+
+    - name: Build Tauri app
+      run: yarn tauri build
+
+    - name: Find .msi and .exe installers
+      id: find-installers
+      run: |
+        $files = Get-ChildItem -Recurse -Path src-tauri\target\release\bundle\ -Include *.msi, *.exe | ForEach-Object { $_.FullName }
+        $list = $files -join "`n"
+        "files<<EOF" >> $env:GITHUB_OUTPUT
+        $list >> $env:GITHUB_OUTPUT
+        "EOF" >> $env:GITHUB_OUTPUT
+      shell: pwsh
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: Release ${{ github.sha }}
+        tag_name: release-${{ github.sha }}
+        files: ${{ steps.find-installers.outputs.files }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
