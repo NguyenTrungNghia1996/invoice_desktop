@@ -71,6 +71,18 @@ jobs:
       with:
         go-version: '1.22'
 
+    - name: Cleanup resources/fe
+      run: |
+        if (Test-Path "resources/fe") { Remove-Item "resources/fe" -Recurse -Force }
+        mkdir resources/fe
+      shell: pwsh
+
+    - name: Cleanup resources/bin
+      run: |
+        if (Test-Path "resources/bin") { Remove-Item "resources/bin" -Recurse -Force }
+        mkdir resources/bin
+      shell: pwsh
+
     - name: Download frontend artifact
       uses: actions/download-artifact@v4
       with:
@@ -92,7 +104,7 @@ jobs:
     - name: Find .msi and .exe installers
       id: find-installers
       run: |
-        $files = Get-ChildItem -Recurse -Path src-tauri\target\release\bundle\ -Include *.msi, *.exe | ForEach-Object { $_.FullName }
+        $files = Get-ChildItem -Recurse -Path target\release\bundle\ -Include *.msi, *.exe | ForEach-Object { $_.FullName }
         $list = $files -join "`n"
         "files<<EOF" >> $env:GITHUB_OUTPUT
         $list >> $env:GITHUB_OUTPUT
