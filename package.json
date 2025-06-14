@@ -1,0 +1,11 @@
+{
+  "name": "invoice_desktop",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/NguyenTrungNghia1996/invoice_desktop.git",
+  "author": "Trung Nghia <nghiabgt@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.5.0"
+  }
+}
