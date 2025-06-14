@@ -1,0 +1,1 @@
+import{G as a,y as n,q as s,z as _}from"./CXt9CpHx.js";const l={__name:"index",async setup(c){let e,t;return[e,t]=a(()=>s("create_invoices")),await e,t(),(o,r)=>(_(),n("div",null,"index"))}};export{l as default};
