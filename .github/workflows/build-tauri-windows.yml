@@ -93,6 +93,13 @@ jobs:
     - name: Install Tauri project dependencies
       run: yarn install
 
+    - name: Extract version from tauri.conf.json
+      id: extract-version
+      run: |
+        $json = Get-Content tauri.conf.json -Raw | ConvertFrom-Json
+        "version=$($json.version)" >> $env:GITHUB_OUTPUT
+      shell: pwsh
+
     - name: Build Tauri app
       run: yarn tauri build
 
@@ -109,8 +116,8 @@ jobs:
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        name: Release ${{ github.sha }}
-        tag_name: release-${{ github.sha }}
+        name: Release v${{ steps.extract-version.outputs.version }}
+        tag_name: v${{ steps.extract-version.outputs.version }}
         files: ${{ steps.find-installers.outputs.files }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
