@@ -54,8 +54,8 @@ fn main() {
                 .env("MINIO_ENDPOINT", "image.nghia.myds.me")
                 .env("MINIO_BUCKET", "test")
                 .env("MINIO_SSL", "true")
-                .env("ATLAS_MONGO_URL", "mongodb+srv://admin:cr969bp6x6@test.nlwvliy.mongodb.net/?retryWrites=true&w=majority&appName=test")
-                .env("ATLAS_DB_NAME", "backup")
+                .env("ATLAS_MONGO_URL", "")
+                .env("ATLAS_DB_NAME", "")
                 .creation_flags(0x08000000) // 👈 Ẩn cửa sổ
                 .spawn()
                 .expect("Không thể khởi động Go backend");
