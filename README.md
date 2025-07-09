@@ -24,6 +24,18 @@ cargo tauri build
 
 File cài đặt cho Windows sẽ được tạo trong `target/release/bundle`.
 
+### Tương thích Windows 7
+
+Ứng dụng kèm manifest hỗ trợ Windows 7. Khi đóng gói trên hệ điều hành khác,
+hãy chỉ định toolchain Windows:
+
+```bash
+cargo tauri build --target x86_64-pc-windows-msvc
+```
+
+Để hạn chế phần mềm diệt virus nhận nhầm, hãy ký số file thực thi sau khi đóng
+gói.
+
 ## Cấu trúc thư mục
 
 - `src/` - mã nguồn Rust khởi chạy ứng dụng và chạy các tiến trình nền
